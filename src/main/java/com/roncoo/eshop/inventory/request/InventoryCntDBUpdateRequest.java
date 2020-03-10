@@ -32,4 +32,9 @@ public class InventoryCntDBUpdateRequest implements Request {
         inventoryService.removeProductInventoryCache(inventory);
         inventoryService.updateProductInventory(inventory);
     }
+
+    @Override
+    public Long getProductId() {
+        return inventory.getProductId();
+    }
 }

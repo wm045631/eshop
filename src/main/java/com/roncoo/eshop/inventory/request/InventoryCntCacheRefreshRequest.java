@@ -24,4 +24,9 @@ public class InventoryCntCacheRefreshRequest implements Request {
         Inventory inventoryFromDb = inventoryService.getProductInventoryById(inventory);
         inventoryService.updateProductInventory(inventoryFromDb);
     }
+
+    @Override
+    public Long getProductId() {
+        return inventory.getProductId();
+    }
 }

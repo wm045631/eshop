@@ -1,6 +1,8 @@
 package com.roncoo.eshop.inventory.thread;
 
 import com.roncoo.eshop.inventory.request.Request;
+import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +16,14 @@ import java.util.concurrent.Executors;
  * 采用单例模式
  * 采用绝对线程安全的方式 --> 静态内部类
  */
+@Data
 public class RequestProcessorThreadPool {
 
-    private int nThread = 10;
+    @Value("${inventory.request-process.nthread:10}")
+    private int nThread;
 
-    private int queueCapacity = 10000;
+    @Value("${inventory.request-process.queueCapacity:1000}")
+    private int queueCapacity;
     // 线程池
     private ExecutorService threadPool = Executors.newFixedThreadPool(nThread);
     // 内存队列
