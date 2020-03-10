@@ -63,16 +63,16 @@ public class Application {
         return jedisCluster;
     }
 
-    /**
-     * 注册监听器
-     * @return
-     */
-    @Bean
-    public ServletListenerRegistrationBean servletListenerRegistrationBean() {
-        ServletListenerRegistrationBean<EventListener> registrationBean = new ServletListenerRegistrationBean<>();
-        registrationBean.setListener(new InitListener());
-        return registrationBean;
-    }
+//    /**
+//     * 注册监听器
+//     * @return
+//     */
+//    @Bean
+//    public ServletListenerRegistrationBean servletListenerRegistrationBean() {
+//        ServletListenerRegistrationBean<EventListener> registrationBean = new ServletListenerRegistrationBean<>();
+//        registrationBean.setListener(new InitListener());
+//        return registrationBean;
+//    }
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);

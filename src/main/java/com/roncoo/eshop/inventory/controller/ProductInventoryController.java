@@ -61,8 +61,12 @@ public class ProductInventoryController {
     public Inventory getProductInventory(@PathVariable Long productId) {
         Inventory inventory = null;
         inventory = productInventoryService.getProductInventoryCache(productId);
+
         // 从redis缓存能查到库存。直接返回
-        if (inventory != null) return inventory;
+        if (inventory != null) {
+            log.warn("get inventory from redis success.inventory = {}", inventory);
+            return inventory;
+        }
         log.warn("can not get inventory from redis. try to update redis cache. productId = {}", productId);
         try {
             Request cacheRefreshRequest = new InventoryCntCacheRefreshRequest(productId, productInventoryService);

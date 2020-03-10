@@ -7,7 +7,9 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 /**
- * 系统初始化监听器
+ * 系统初始化监听器。 不用这个
+ *
+ * 而是采用StartUpInitialization implements ApplicationRunner，重写run方法进行服务的初始化操作。
  */
 @Slf4j
 public class InitListener implements ServletContextListener {
