@@ -14,4 +14,5 @@ import org.springframework.context.annotation.Configuration;
 public class InventoryConfig {
     private int nThread;
     private int queueCapacity;
+    private int queryTimeout;
 }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author Administrator
  */
 @Controller
+@RequestMapping("/user")
 public class UserController {
 
     @Autowired

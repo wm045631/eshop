@@ -1,5 +1,6 @@
 package com.roncoo.eshop.inventory.service.impl;
 
+import com.roncoo.eshop.inventory.config.RedisKeys;
 import com.roncoo.eshop.inventory.dao.RedisDAO;
 import com.roncoo.eshop.inventory.mapper.InventoryMapper;
 import com.roncoo.eshop.inventory.model.Inventory;
@@ -33,11 +34,18 @@ public class ProductInventoryServiceImpl implements ProductInventoryService {
     }
 
     @Override
-    public Inventory getProductInventoryById(Inventory inventory) {
+    public void updateProductInventoryCache(Inventory inventory) {
+        if (inventory == null) return;
+        String key = RedisKeys.PRODUCT_INVENTORY + inventory.getProductId();
+        redisDAO.set(key, String.valueOf(inventory.getInventoryCnt()));
+    }
+
+    @Override
+    public Inventory getProductInventoryById(Long productId) {
         Inventory res = null;
         InventoryExample example = new InventoryExample();
         InventoryExample.Criteria criteria = example.createCriteria();
-        criteria.andProductIdEqualTo(inventory.getProductId());
+        criteria.andProductIdEqualTo(productId);
         List<Inventory> inventories = inventoryMapper.selectByExample(example);
         if (inventories != null && inventories.size() > 0) {
             res = inventories.get(0);
@@ -47,19 +55,24 @@ public class ProductInventoryServiceImpl implements ProductInventoryService {
 
     @Override
     public void removeProductInventoryCache(Inventory inventory) {
-        String key = "product:inventory:" + inventory.getProductId();
+        String key = RedisKeys.PRODUCT_INVENTORY + inventory.getProductId();
         redisDAO.del(key);
     }
 
-    @Override
-    public void initProductInventoryCache(Inventory inventory) {
-        String key = "product:inventory:" + inventory.getProductId();
-        redisDAO.set(key, String.valueOf(inventory.getInventoryCnt()));
-    }
 
     @Override
-    public Integer getProductInventoryCache(Inventory inventory) {
-        String key = "product:inventory:" + inventory.getProductId();
-        return Integer.valueOf(redisDAO.get(key));
+    public Inventory getProductInventoryCache(Long productId) {
+        Long count = 0L;
+        String key = RedisKeys.PRODUCT_INVENTORY + productId;
+        try {
+            count = Long.valueOf(redisDAO.get(key));
+            Inventory inventory = new Inventory();
+            inventory.setProductId(productId);
+            inventory.setInventoryCnt(count);
+            return inventory;
+        } catch (Exception e) {
+//            e.printStackTrace();
+        }
+        return null;
     }
 }

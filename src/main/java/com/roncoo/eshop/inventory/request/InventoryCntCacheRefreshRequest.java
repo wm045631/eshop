@@ -5,12 +5,12 @@ import com.roncoo.eshop.inventory.service.ProductInventoryService;
 
 public class InventoryCntCacheRefreshRequest implements Request {
 
-    private Inventory inventory;
+    private Long productId;
 
     private ProductInventoryService inventoryService;
 
-    public InventoryCntCacheRefreshRequest(Inventory inventory, ProductInventoryService inventoryService) {
-        this.inventory = inventory;
+    public InventoryCntCacheRefreshRequest(Long productId, ProductInventoryService inventoryService) {
+        this.productId = productId;
         this.inventoryService = inventoryService;
     }
 
@@ -21,12 +21,12 @@ public class InventoryCntCacheRefreshRequest implements Request {
      */
     @Override
     public void process() {
-        Inventory inventoryFromDb = inventoryService.getProductInventoryById(inventory);
-        inventoryService.updateProductInventory(inventoryFromDb);
+        Inventory inventoryFromDb = inventoryService.getProductInventoryById(productId);
+        inventoryService.updateProductInventoryCache(inventoryFromDb);
     }
 
     @Override
     public Long getProductId() {
-        return inventory.getProductId();
+        return productId;
     }
 }

@@ -14,11 +14,16 @@ public class WorkThread implements Callable<Boolean> {
     }
 
     @Override
-    public Boolean call() throws Exception {
+    public Boolean call() {
         // 循环从queue中获取请求进行处理
-//        while (true){
-//
-//        }
+        try {
+            while (true) {
+                Request request = queue.take();
+                request.process();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         return true;
     }
 }

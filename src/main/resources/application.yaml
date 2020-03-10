@@ -15,3 +15,4 @@ inventory:
    request-process:
      nthread: 10
      queueCapacity: 1000
+     queryTimeout: 200 # ms

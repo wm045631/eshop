@@ -4,14 +4,13 @@ import com.roncoo.eshop.inventory.model.Inventory;
 
 public interface ProductInventoryService {
 
-    Inventory getProductInventoryById(Inventory inventory);
+    Inventory getProductInventoryById(Long productId);
 
     void updateProductInventory(Inventory inventory);
 
+    void updateProductInventoryCache(Inventory inventory);
 
-    void initProductInventoryCache(Inventory inventory);
-
-    Integer getProductInventoryCache(Inventory inventory);
+    Inventory getProductInventoryCache(Long productId);
 
     void removeProductInventoryCache(Inventory inventory);
 

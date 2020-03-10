@@ -2,7 +2,6 @@ package com.roncoo.eshop.inventory.thread;
 
 import com.roncoo.eshop.inventory.request.Request;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +18,9 @@ import java.util.concurrent.Executors;
 @Data
 public class RequestProcessorThreadPool {
 
-    @Value("${inventory.request-process.nthread:10}")
-    private int nThread;
+    private int nThread = 10;
 
-    @Value("${inventory.request-process.queueCapacity:1000}")
-    private int queueCapacity;
+    private int queueCapacity = 1000;
     // 线程池
     private ExecutorService threadPool = Executors.newFixedThreadPool(nThread);
     // 内存队列
@@ -62,6 +59,7 @@ public class RequestProcessorThreadPool {
         private static RequestProcessorThreadPool instance;
 
         static {
+            // 执行RequestProcessorThreadPool的空参构造
             instance = new RequestProcessorThreadPool();
         }
 

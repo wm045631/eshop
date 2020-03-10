@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
+/**
+ * 请求的异步处理
+ */
 @Service
 public class RequestAsyncProcessServiceImpl implements RequestAsyncProcessService {
 
@@ -17,10 +20,22 @@ public class RequestAsyncProcessServiceImpl implements RequestAsyncProcessServic
     private InventoryConfig inventoryConfig;
 
     @Override
-    public void process(Request request) {
-        // 做请求的路由，根据每个商品的id，路由到对应的内存队列中去
+    public void wrapper(Request request) {
+        try {
+            // 做请求的路由，根据每个商品的id，路由到对应的内存队列中去
+            ArrayBlockingQueue<Request> queue = getRoutingQueue(request.getProductId());
+            // 将请求放入对应的队列中，完成路由操作
+            queue.put(request);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
+    /**
+     * 根据productId获取对应的内存队列
+     * @param productId
+     * @return
+     */
     private ArrayBlockingQueue<Request> getRoutingQueue(Long productId) {
         RequestProcessorThreadPool instance = RequestProcessorThreadPool.getInstance();
         List<ArrayBlockingQueue> queues = instance.getQueues();
