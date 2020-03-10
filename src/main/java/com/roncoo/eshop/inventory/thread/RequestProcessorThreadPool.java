@@ -1,6 +1,6 @@
 package com.roncoo.eshop.inventory.thread;
 
-import com.roncoo.eshop.inventory.pojo.Request;
+import com.roncoo.eshop.inventory.request.Request;
 
 import java.util.ArrayList;
 import java.util.List;

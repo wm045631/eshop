@@ -2,6 +2,7 @@ package com.roncoo.eshop.inventory.service.impl;
 
 import javax.annotation.Resource;
 
+import com.roncoo.eshop.inventory.model.UserExample;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
@@ -25,8 +26,11 @@ public class UserServiceImpl implements UserService {
 	private RedisDAO redisDAO;
 	
 	@Override
-	public User findUserInfo() {
-		return userMapper.findUserInfo();
+	public User getUserByName(String name) {
+		UserExample example = new UserExample();
+        UserExample.Criteria criteria = example.createCriteria();
+        criteria.andNameEqualTo(name);
+        return userMapper.selectByExample(example).get(0);
 	}
 
 	@Override

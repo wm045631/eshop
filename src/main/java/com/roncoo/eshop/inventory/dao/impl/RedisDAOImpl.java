@@ -11,20 +11,20 @@ import org.springframework.stereotype.Repository;
 public class RedisDAOImpl implements RedisDAO {
 
 //    @Resource
-////    private JedisCluster jedisCluster;
-////
-////    @Override
-////    public void set(String key, String value) {
-////        jedisCluster.set(key, value);
-////    }
-////
-////    @Override
-////    public String get(String key) {
-////        return jedisCluster.get(key);
-////    }
-
-    @Autowired
-    private RedisTemplate redisTemplate;
+//    private JedisCluster jedisCluster;
+//
+//    @Override
+//    public void set(String key, String value) {
+//        jedisCluster.set(key, value);
+//    }
+//
+//    @Override
+//    public String get(String key) {
+//        return jedisCluster.get(key);
+//    }
+//
+//    @Autowired
+//    private RedisTemplate redisTemplate;
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
@@ -39,5 +39,10 @@ public class RedisDAOImpl implements RedisDAO {
     public String get(String key) {
         ValueOperations<String, String> stringOperations = stringRedisTemplate.opsForValue();
         return stringOperations.get(key);
+    }
+
+    @Override
+    public void del(String key) {
+        stringRedisTemplate.delete(key);
     }
 }

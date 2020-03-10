@@ -15,7 +15,7 @@
         </commentGenerator>
 
         <jdbcConnection
-                driverClass="com.mysql.jdbc.Driver"
+                driverClass="com.mysql.cj.jdbc.Driver"
                 connectionURL="jdbc:mysql://172.20.3.173:3306/commerce_system?useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=PRC&amp;allowMultiQueries=true&amp;nullNamePatternMatchesAll=true&amp;createDatabaseIfNotExist=true"
                 userId="root"
                 password="MySQL!23">
@@ -31,6 +31,10 @@
                              targetProject="src/main/java" type="XMLMAPPER"/>
 
         <table tableName="user">
+            <!--mysql 配置 -->
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table>
+        <table tableName="inventory">
             <!--mysql 配置 -->
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>

@@ -13,7 +13,7 @@ public interface UserService {
 	 * 查询用户信息
 	 * @return 用户信息
 	 */
-	public User findUserInfo();
+	public User getUserByName(String name);
 	
 	/**
 	 * 查询redis中缓存的用户信息
