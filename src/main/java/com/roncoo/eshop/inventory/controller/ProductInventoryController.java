@@ -38,7 +38,8 @@ public class ProductInventoryController {
      * @return
      */
     @PostMapping("/updateProductInventory")
-    public Response updateProductInventory(Inventory inventory) {
+    public Response updateProductInventory(@RequestBody Inventory inventory) {
+        log.info("START: 产生一个写请求");
         Response response = null;
         try {
             Request dbUpdateRequest = new InventoryCntDBUpdateRequest(inventory, productInventoryService);
@@ -59,6 +60,7 @@ public class ProductInventoryController {
      */
     @GetMapping("/getProductInventory/{productId}")
     public Inventory getProductInventory(@PathVariable Long productId) {
+        log.info("START: 产生一个读请求");
         Inventory inventory = null;
         inventory = productInventoryService.getProductInventoryCache(productId);
 
@@ -67,9 +69,10 @@ public class ProductInventoryController {
             log.warn("get inventory from redis success.inventory = {}", inventory);
             return inventory;
         }
+        //todo:如果缓存中没有，不一定直接请求数据库、更新缓存！！！考虑缓存穿透的问题   ---》 后面对读请求进行了过滤
         log.warn("can not get inventory from redis. try to update redis cache. productId = {}", productId);
+        Request cacheRefreshRequest = new InventoryCntCacheRefreshRequest(productId, productInventoryService, false);
         try {
-            Request cacheRefreshRequest = new InventoryCntCacheRefreshRequest(productId, productInventoryService);
             // 查询数据库更新缓存
             requestAsyncProcessService.wrapper(cacheRefreshRequest);
 
@@ -77,8 +80,9 @@ public class ProductInventoryController {
             Long waitTime = 0L;
             while (true) {
                 // 请求超过一定时间，直接break
-                if (waitTime > inventoryConfig.getQueryTimeout()) {
-                    log.warn("can not get inventory from redis. productId = {}", productId);
+//                if (waitTime > inventoryConfig.getQueryTimeout()) {
+                if (waitTime > 10000) {
+                    log.warn("can not get inventory from redis. productId = {}，waitTime = {}", productId, waitTime);
                     break;
                 }
                 inventory = productInventoryService.getProductInventoryCache(productId);
@@ -97,8 +101,15 @@ public class ProductInventoryController {
         // 到这：表示在规定时间内，没有查询到库存
         // 尝试从数据库读取一次
         inventory = productInventoryService.getProductInventoryById(productId);
+        log.warn("读请求：从数据库读取库存。{}", inventory);
         if (inventory != null) {
-            log.warn("get inventory from redis success. inventory = {}", inventory);
+            // 在controller层查数据库成功，也刷入缓存。
+            // 因为后面做了读请求去重，redis数据被LRU了，flagMap标志位一直是false。导致后面的读请求从redis查不到，每次都去mysql查，但是查到后又没有更新到redis
+            // productInventoryService.updateProductInventoryCache(inventory); 这个操作不是在线程队列中，还是有线程安全问题的。
+            // 重新发送一个更新缓存的请求。(强制刷新)  代码一般很少走到这
+            log.warn("get inventory from mysql success. inventory = {}", inventory);
+            Request forceRefreshCacheRequest = new InventoryCntCacheRefreshRequest(productId, productInventoryService, true);
+            requestAsyncProcessService.wrapper(forceRefreshCacheRequest);
             return inventory;
         }
         log.warn("can not get inventory from mysql. productId = {}", productId);

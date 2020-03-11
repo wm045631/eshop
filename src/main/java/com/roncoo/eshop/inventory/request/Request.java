@@ -6,7 +6,12 @@ package com.roncoo.eshop.inventory.request;
  */
 public interface Request {
 
+    /**
+     * 封装这个request的处理逻辑
+     */
     void process();
 
     Long getProductId();
+
+    boolean isForceRefresh();
 }

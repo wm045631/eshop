@@ -30,7 +30,12 @@ public class ProductInventoryServiceImpl implements ProductInventoryService {
         InventoryExample example = new InventoryExample();
         InventoryExample.Criteria criteria = example.createCriteria();
         criteria.andProductIdEqualTo(inventory.getProductId());
-        inventoryMapper.updateByExample(inventory, example);
+        List<Inventory> inventories = inventoryMapper.selectByExample(example);
+        if (inventories == null) {
+            inventoryMapper.insert(inventory);
+        } else {
+            inventoryMapper.updateByExampleSelective(inventory, example);
+        }
     }
 
     @Override
@@ -65,13 +70,15 @@ public class ProductInventoryServiceImpl implements ProductInventoryService {
         Long count = 0L;
         String key = RedisKeys.PRODUCT_INVENTORY + productId;
         try {
-            count = Long.valueOf(redisDAO.get(key));
+            String s = redisDAO.get(key);
+            if (s == null || "".equals(s.trim())) return null;
+            count = Long.valueOf(s);
             Inventory inventory = new Inventory();
             inventory.setProductId(productId);
             inventory.setInventoryCnt(count);
             return inventory;
         } catch (Exception e) {
-//            e.printStackTrace();
+            e.printStackTrace();
         }
         return null;
     }

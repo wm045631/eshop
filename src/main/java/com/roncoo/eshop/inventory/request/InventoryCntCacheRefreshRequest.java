@@ -2,16 +2,25 @@ package com.roncoo.eshop.inventory.request;
 
 import com.roncoo.eshop.inventory.model.Inventory;
 import com.roncoo.eshop.inventory.service.ProductInventoryService;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class InventoryCntCacheRefreshRequest implements Request {
 
     private Long productId;
 
     private ProductInventoryService inventoryService;
 
-    public InventoryCntCacheRefreshRequest(Long productId, ProductInventoryService inventoryService) {
+    /**
+     * 是否强制刷新缓存。
+     * 每次从redis中没有查到，但是从mysql中查到了，都强制刷新缓存
+     */
+    private boolean forceRefresh;
+
+    public InventoryCntCacheRefreshRequest(Long productId, ProductInventoryService inventoryService, boolean forceRefresh) {
         this.productId = productId;
         this.inventoryService = inventoryService;
+        this.forceRefresh = forceRefresh;
     }
 
     /**
@@ -21,6 +30,7 @@ public class InventoryCntCacheRefreshRequest implements Request {
      */
     @Override
     public void process() {
+        log.info("InventoryCntCacheRefreshRequest, productId = {}", productId);
         Inventory inventoryFromDb = inventoryService.getProductInventoryById(productId);
         inventoryService.updateProductInventoryCache(inventoryFromDb);
     }
@@ -28,5 +38,9 @@ public class InventoryCntCacheRefreshRequest implements Request {
     @Override
     public Long getProductId() {
         return productId;
+    }
+    @Override
+    public boolean isForceRefresh() {
+        return forceRefresh;
     }
 }

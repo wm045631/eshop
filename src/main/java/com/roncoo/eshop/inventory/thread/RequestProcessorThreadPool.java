@@ -1,6 +1,7 @@
 package com.roncoo.eshop.inventory.thread;
 
 import com.roncoo.eshop.inventory.request.Request;
+import com.roncoo.eshop.inventory.request.RequestQueue;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -23,14 +24,13 @@ public class RequestProcessorThreadPool {
     private int queueCapacity = 1000;
     // 线程池
     private ExecutorService threadPool = Executors.newFixedThreadPool(nThread);
-    // 内存队列
-    private List<ArrayBlockingQueue> queues = new ArrayList<>();
 
     public RequestProcessorThreadPool() {
+        RequestQueue requestQueue = RequestQueue.getInstance();
         // 将每个线程绑定一个队列
         for (int i = 0; i < nThread; i++) {
             ArrayBlockingQueue<Request> queue = new ArrayBlockingQueue<>(queueCapacity);
-            queues.add(queue);
+            requestQueue.addQueue(queue);
             threadPool.submit(new WorkThread(queue));
         }
     }
