@@ -21,20 +21,20 @@
                 password="MySQL!23">
         </jdbcConnection>
 
-        <javaModelGenerator targetPackage="com.roncoo.eshop.inventory.model"
+        <javaModelGenerator targetPackage="com.roncoo.eshop.cache.model"
                             targetProject="src/main/java"/>
 
         <sqlMapGenerator targetPackage="mybatis"
                          targetProject="src/main/resources"/>
 
-        <javaClientGenerator targetPackage="com.roncoo.eshop.inventory.mapper"
+        <javaClientGenerator targetPackage="com.roncoo.eshop.cache.mapper"
                              targetProject="src/main/java" type="XMLMAPPER"/>
 
         <table tableName="user">
             <!--mysql 配置 -->
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
-        <table tableName="inventory">
+        <table tableName="product_info">
             <!--mysql 配置 -->
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
