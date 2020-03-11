@@ -1,0 +1,53 @@
+clusterServersConfig:
+  # 连接空闲超时，单位：毫秒 默认10000
+  idleConnectionTimeout: 10000
+  pingTimeout: 1000
+  # 同任何节点建立连接时的等待超时。时间单位是毫秒 默认10000
+  connectTimeout: 10000
+  # 等待节点回复命令的时间。该时间从命令发送成功时开始计时。默认3000
+  timeout: 3000
+  # 命令失败重试次数
+  retryAttempts: 3
+  # 命令重试发送时间间隔，单位：毫秒
+  retryInterval: 1500
+  # 重新连接时间间隔，单位：毫秒
+  reconnectionTimeout: 3000
+  # 执行失败最大次数
+  failedAttempts: 3
+  # 密码
+#  password: test1234
+  # 单个连接最大订阅数量
+  subscriptionsPerConnection: 5
+  clientName: null
+  # loadBalancer 负载均衡算法类的选择
+  loadBalancer: !<org.redisson.connection.balancer.RoundRobinLoadBalancer> {}
+  #从节点发布和订阅连接的最小空闲连接数
+  slaveSubscriptionConnectionMinimumIdleSize: 1
+  #从节点发布和订阅连接池大小 默认值50
+  slaveSubscriptionConnectionPoolSize: 50
+  # 从节点最小空闲连接数 默认值32
+  slaveConnectionMinimumIdleSize: 32
+  # 从节点连接池大小 默认64
+  slaveConnectionPoolSize: 64
+  # 主节点最小空闲连接数 默认32
+  masterConnectionMinimumIdleSize: 32
+  # 主节点连接池大小 默认64
+  masterConnectionPoolSize: 64
+  # 订阅操作的负载均衡模式
+  subscriptionMode: SLAVE
+#  readMode: "MASTER_SLAVE"
+  readMode: "SLAVE"
+  nodeAddresses:
+    - "redis://172.20.3.173:7005"
+    - "redis://172.20.3.173:7006"
+    - "redis://172.20.3.174:7001"
+    - "redis://172.20.3.174:7002"
+    - "redis://172.20.3.175:7003"
+    - "redis://172.20.3.175:7004"
+    # 对Redis集群节点状态扫描的时间间隔。单位是毫秒。默认1000
+  scanInterval: 1000
+
+threads: 0
+nettyThreads: 0
+codec: !<org.redisson.codec.JsonJacksonCodec> {}
+transportMode: "NIO" #传输模式nio
