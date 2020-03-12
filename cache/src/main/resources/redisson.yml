@@ -11,9 +11,9 @@ clusterServersConfig:
   # 命令重试发送时间间隔，单位：毫秒
   retryInterval: 1500
   # 重新连接时间间隔，单位：毫秒
-  reconnectionTimeout: 3000
+  failedSlaveReconnectionInterval: 3000
   # 执行失败最大次数
-  failedAttempts: 3
+  failedSlaveCheckInterval: 3
   # 密码
 #  password: test1234
   # 单个连接最大订阅数量

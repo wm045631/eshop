@@ -1,5 +1,6 @@
 package com.roncoo.eshop.cache.controller;
 
+import com.roncoo.eshop.cache.mapper.ProductInfoMapper;
 import com.roncoo.eshop.cache.model.ProductInfo;
 import com.roncoo.eshop.cache.pojo.ApiResponse;
 import com.roncoo.eshop.cache.service.CacheService;
@@ -16,6 +17,9 @@ public class CacheController {
     @Autowired
     private CacheService cacheService;
 
+    @Autowired
+    private ProductInfoMapper productInfoMapper;
+
     @PostMapping("/testPutCache")
     public ApiResponse testPutCache(@RequestBody ProductInfo productInfo) {
         ApiResponse<Object> response = new ApiResponse<>();
@@ -31,4 +35,28 @@ public class CacheController {
         return response;
     }
 
+    @PostMapping("/testRedisPut")
+    public ApiResponse testRedisPut(@RequestBody ProductInfo productInfo) {
+        ApiResponse<Object> response = new ApiResponse<>();
+        try {
+            cacheService.saveProductInfo2ReidsCache(productInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setData(e.getMessage());
+        }
+        return response;
+    }
+
+    @PostMapping("/testRedisGet")
+    public ApiResponse testRedisGet(@RequestBody ProductInfo productInfo) {
+        ApiResponse<Object> response = new ApiResponse<>();
+        try {
+            ProductInfo productInfoFromRedisCache = cacheService.getProductInfoFromRedisCache(productInfo.getId());
+            response.setData(productInfoFromRedisCache);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setData(e.getMessage());
+        }
+        return response;
+    }
 }

@@ -9,13 +9,19 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   redis:
     redisson:
-    config: classpath:redisson.yml # 配置集群模式
+    config: classpath:redisson.yml   # 配置集群模式
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
 
-inventory:
-   request-process:
-     nthread: 10
-     queueCapacity: 1000
-     queryTimeout: 200 # ms
+
+kafka:
+  server: 172.20.3.173:9092,172.20.3.174:9092,172.20.3.175:9092
+  consumer:
+    cache:
+      topic: cache-message
+      groupid: cache-group-1
+      nthread: 3
+  producer:
+    cache:
+      retries: 3

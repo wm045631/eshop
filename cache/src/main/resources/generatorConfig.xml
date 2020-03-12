@@ -9,6 +9,11 @@
         <property name="beginningDelimiter" value="`"/>
         <property name="endingDelimiter" value="`"/>
 
+        <!--<plugin type="tk.mybatis.mapper.generator.MapperPlugin">-->
+            <!--<property name="mappers" value="com.roncoo.eshop.cache.utils.MyMapper"/>-->
+        <!--</plugin>-->
+
+        <!--<plugin type="org.mybatis.generator.plugins.SerializablePlugin"></plugin>-->
 
         <commentGenerator>
             <property name="suppressDate" value="true"/>
@@ -31,13 +36,13 @@
                              targetProject="src/main/java" type="XMLMAPPER"/>
 
         <table tableName="user">
-            <!--mysql 配置 -->
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
         <table tableName="product_info">
-            <!--mysql 配置 -->
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
-
+        <table tableName="shop_info">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table>
     </context>
 </generatorConfiguration>

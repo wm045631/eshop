@@ -8,7 +8,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -48,6 +47,21 @@ public class CacheApplication {
     public PlatformTransactionManager transactionManager() {
         return new DataSourceTransactionManager(dataSource());
     }
+
+//    /**
+//     * 采用传统的JedisCluster
+//     *
+//     * @return
+//     */
+//    @Bean
+//    public JedisCluster JedisClusterFactory() {
+//        Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
+//        jedisClusterNodes.add(new HostAndPort("172.20.3.173", 7005));
+//        jedisClusterNodes.add(new HostAndPort("172.20.3.174", 7001));
+//        jedisClusterNodes.add(new HostAndPort("172.20.3.175", 7003));
+//        JedisCluster jedisCluster = new JedisCluster(jedisClusterNodes);
+//        return jedisCluster;
+//    }
 
     public static void main(String[] args) {
         SpringApplication.run(CacheApplication.class, args);
