@@ -20,7 +20,7 @@ kafka:
   consumer:
     cache:
       topic: cache-message
-      groupid: cache-group-1
+      groupid: eshop-cache-group
       nthread: 3
   producer:
     cache:

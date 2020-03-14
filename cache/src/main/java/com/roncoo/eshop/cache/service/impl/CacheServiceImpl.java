@@ -31,18 +31,18 @@ public class CacheServiceImpl implements CacheService {
      */
     public static final String CACHE_NAME = "local";
 
-    @Override
-    @CachePut(value = CACHE_NAME, key = "'key_'+#productInfo.getId()")
-    public ProductInfo saveToLocalCache(ProductInfo productInfo) {
-        return productInfo;
-    }
-
-    @Override
-    @Cacheable(value = CACHE_NAME, key = "'key_'+#id")
-    public ProductInfo getFromLocalCache(Long id) {
-        // 如果没有取到，就返回null。取到了直接返回了
-        return null;
-    }
+//    @Override
+//    @CachePut(value = CACHE_NAME, key = "'key_'+#productInfo.getId()")
+//    public ProductInfo saveToLocalCache(ProductInfo productInfo) {
+//        return productInfo;
+//    }
+//
+//    @Override
+//    @Cacheable(value = CACHE_NAME, key = "'key_'+#id")
+//    public ProductInfo getFromLocalCache(Long id) {
+//        // 如果没有取到，就返回null。取到了直接返回了
+//        return null;
+//    }
 
     /**
      * 将商品信息保存到redis中

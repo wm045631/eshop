@@ -47,6 +47,7 @@ public class KafkaMessageProcess implements Runnable {
 
     /**
      * 从kafka消费数据，进行处理
+     *  kafka-console-producer --broker-list cdh1:9092,cdh2:9092,cdh3:9092 --topic cache-message
      * {"serviceId":"productInfoService","productId":1}
      */
     @Override
