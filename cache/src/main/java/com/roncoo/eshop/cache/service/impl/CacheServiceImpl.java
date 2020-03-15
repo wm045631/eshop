@@ -63,6 +63,12 @@ public class CacheServiceImpl implements CacheService {
         return JSONObject.parseObject(s, ProductInfo.class);
     }
 
+    @Override
+    public void delProductInfoFromReidsCache(Long productId) {
+        String key = RedisKeys.PRODUCT_INFO_KEY + productId;
+        stringRedisTemplate.delete(key);
+    }
+
     /**
      * 将商品信息保存到本地的ehcache缓存中
      */
@@ -111,6 +117,12 @@ public class CacheServiceImpl implements CacheService {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public void delShopInfoFromReidsCache(Long shopId) {
+        String key = RedisKeys.SHOP_INFO_KEY + shopId;
+        stringRedisTemplate.delete(key);
     }
 
     /**

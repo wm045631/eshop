@@ -25,3 +25,9 @@ kafka:
   producer:
     cache:
       retries: 3
+
+zookeeper:
+  server: 172.20.3.173:2181,172.20.3.174:2181,172.20.3.175:2181
+  sessiontimeout: 50000
+  retry: 3
+  lockPrefix: /product-lock-

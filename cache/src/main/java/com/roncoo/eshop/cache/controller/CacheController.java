@@ -46,7 +46,7 @@ public class CacheController {
         // 从redis中获取
         productInfo = cacheService.getProductInfoFromRedisCache(productId);
 
-        if (productId == null) {
+        if (productInfo == null) {
             log.info("get product info from redis failed. productId = {}", productId);
             // 从ehcache中获取
             productInfo = cacheService.getProductInfoFromLocalCache(productId);
@@ -55,7 +55,7 @@ public class CacheController {
             return productInfo;
         }
         // todo: redis和ehcache都没有。需要重新从mysql获取数据，重建缓存  --- 存在并发冲突的问题
-        if (productId == null) {
+        if (productInfo == null) {
             log.info("get product info from ehcache failed. productId = {}", productId);
             ProductInfoExample example = new ProductInfoExample();
             ProductInfoExample.Criteria criteria = example.createCriteria();
@@ -143,6 +143,30 @@ public class CacheController {
         try {
             ProductInfo productInfoFromRedisCache = cacheService.getProductInfoFromRedisCache(productInfo.getId());
             response.setData(productInfoFromRedisCache);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setData(e.getMessage());
+        }
+        return response;
+    }
+
+    @GetMapping("/testRedisProductInfoDel")
+    public ApiResponse testRedisProductInfoDel(Long productId) {
+        ApiResponse<Object> response = new ApiResponse<>();
+        try {
+            cacheService.delProductInfoFromReidsCache(productId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setData(e.getMessage());
+        }
+        return response;
+    }
+
+    @GetMapping("/testRedisShopInfoDel")
+    public ApiResponse testRedisShopInfoDel(Long shopId) {
+        ApiResponse<Object> response = new ApiResponse<>();
+        try {
+            cacheService.delShopInfoFromReidsCache(shopId);
         } catch (Exception e) {
             e.printStackTrace();
             response.setData(e.getMessage());

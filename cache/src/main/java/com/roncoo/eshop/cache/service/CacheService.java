@@ -14,6 +14,8 @@ public interface CacheService {
 
     ProductInfo getProductInfoFromRedisCache(Long productId);
 
+    void delProductInfoFromReidsCache(Long productId);
+
     // shopInfo.ehcache
     ShopInfo saveShopInfo2LocalCache(ShopInfo shopInfo);
 
@@ -23,4 +25,6 @@ public interface CacheService {
     void saveShopInfo2ReidsCache(ShopInfo shopInfo);
 
     ShopInfo getShopInfoFromRedisCache(Long shopId);
+
+    void delShopInfoFromReidsCache(Long shopId);
 }
