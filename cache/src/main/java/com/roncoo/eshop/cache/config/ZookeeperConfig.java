@@ -25,8 +25,6 @@ public class ZookeeperConfig {
     private int sessiontimeout;
     @Value("${zookeeper.retry}")
     private int retry;
-    @Value("${zookeeper.lockPrefix}")
-    private String lockPrefix;
 
     @Bean
     public ZooKeeper createZk() {

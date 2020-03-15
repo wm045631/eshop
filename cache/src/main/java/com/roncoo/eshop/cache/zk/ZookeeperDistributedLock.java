@@ -21,24 +21,21 @@ public class ZookeeperDistributedLock {
 
     /**
      * 获取分布式锁
-     *
-     * @param productId
      */
-    public void acquireDistributedLock(Long productId) {
-        String path = zookeeperConfig.getLockPrefix() + productId;
+    public void lock(String path) {
         try {
             zookeeper.create(path,
                     "".getBytes(),
                     ZooDefs.Ids.OPEN_ACL_UNSAFE,
                     CreateMode.EPHEMERAL);
-            log.info("success to acquire lock for productId={}", productId);
+            log.info("success to acquire lock for path ={}", path);
         } catch (Exception e) {
             // 如果那个商品对应的锁的node，已经存在了，就是已经被别人加锁了，那么就这里就会报错
             // NodeExistsException。循环尝试获取锁
             int count = 0;
             while (true) {
                 try {
-                    Thread.sleep(20);
+                    Thread.sleep(200);
                     zookeeper.create(path,
                             "".getBytes(),
                             ZooDefs.Ids.OPEN_ACL_UNSAFE,
@@ -46,9 +43,10 @@ public class ZookeeperDistributedLock {
                 } catch (Exception e2) {
 //                    e2.printStackTrace();
                     count++;
+                    log.info("try to {} times to acquire lock for path = {} ", count, path);
                     continue;
                 }
-                log.info("success to acquire lock for productId = {} after {} times try......", productId, count);
+                log.info("success to acquire lock for path = {} after {} times try......", path, count);
                 break;
             }
         }
@@ -56,14 +54,12 @@ public class ZookeeperDistributedLock {
 
     /**
      * 释放掉一个分布式锁
-     *
-     * @param productId
      */
-    public void releaseDistributedLock(Long productId) {
-        String path = zookeeperConfig.getLockPrefix() + productId;
+    public void unlock(String path) {
+//        String path = zookeeperConfig.getLockPrefix() + productId;
         try {
             zookeeper.delete(path, -1);
-            log.info("release distributed lock");
+            log.info("release distributed lock. path = {}", path);
         } catch (Exception e) {
             e.printStackTrace();
         }

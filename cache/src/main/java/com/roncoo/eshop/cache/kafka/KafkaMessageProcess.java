@@ -2,6 +2,7 @@ package com.roncoo.eshop.cache.kafka;
 
 import com.alibaba.fastjson.JSONObject;
 import com.roncoo.eshop.cache.config.KafkaConfig;
+import com.roncoo.eshop.cache.constant.LockPrefix;
 import com.roncoo.eshop.cache.mapper.ProductInfoMapper;
 import com.roncoo.eshop.cache.mapper.ShopInfoMapper;
 import com.roncoo.eshop.cache.model.ProductInfo;
@@ -9,6 +10,7 @@ import com.roncoo.eshop.cache.model.ProductInfoExample;
 import com.roncoo.eshop.cache.model.ShopInfo;
 import com.roncoo.eshop.cache.model.ShopInfoExample;
 import com.roncoo.eshop.cache.service.CacheService;
+import com.roncoo.eshop.cache.zk.ZookeeperDistributedLock;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -30,25 +32,29 @@ public class KafkaMessageProcess implements Runnable {
     private CacheService cacheService;
     private ShopInfoMapper shopInfoMapper;
     private ProductInfoMapper productInfoMapper;
+    private ZookeeperDistributedLock zookeeperDistributedLock;
 
     public KafkaMessageProcess(KafkaConfig kafkaConfig,
                                String groupId,
                                String topic,
                                CacheService cacheService,
                                ShopInfoMapper shopInfoMapper,
-                               ProductInfoMapper productInfoMapper) {
+                               ProductInfoMapper productInfoMapper,
+                               ZookeeperDistributedLock zookeeperDistributedLock) {
         this.kafkaConfig = kafkaConfig;
         this.groupId = groupId;
         this.topic = topic;
         this.cacheService = cacheService;
         this.productInfoMapper = productInfoMapper;
         this.shopInfoMapper = shopInfoMapper;
+        this.zookeeperDistributedLock = zookeeperDistributedLock;
     }
 
     /**
      * 从kafka消费数据，进行处理
-     *  kafka-console-producer --broker-list cdh1:9092,cdh2:9092,cdh3:9092 --topic cache-message
+     * kafka-console-producer --broker-list cdh1:9092,cdh2:9092,cdh3:9092 --topic cache-message
      * {"serviceId":"productInfoService","productId":1}
+     * {"serviceId":"shopInfoService","shopId":1}
      */
     @Override
     public void run() {
@@ -104,11 +110,34 @@ public class KafkaMessageProcess implements Runnable {
         criteria.andIdEqualTo(productId);
         List<ProductInfo> productInfos = productInfoMapper.selectByExample(example);
         if (productInfos != null && productInfos.size() == 1) {
-            cacheService.saveProductInfo2LocalCache(productInfos.get(0));
+            ProductInfo productInfoInMysql = productInfos.get(0);
+            cacheService.saveProductInfo2LocalCache(productInfoInMysql);
             ProductInfo info = cacheService.getProductInfoFromLocalCache(productId);
             log.info("获取刚保存到本地缓存的商品信息: {}", info.toString());
-            cacheService.saveProductInfo2ReidsCache(productInfos.get(0));
-            log.info("获取刚保存到redis的商品信息: {}", cacheService.getProductInfoFromRedisCache(productId).toString());
+            // todo:在将数据写入redis之前，应该获取zk分布式锁
+            zookeeperDistributedLock.lock(LockPrefix.PRODUCT_LOCK_PREFIX + productId);
+            /**
+             * 测试缓存更新和缓存重建都尝试获得相同的分布式锁。
+             * 一边往kafka发送{"serviceId":"productInfoService","productId":1}  --> 缓存主动更新
+             * 一边http://localhost:8081/ehcache/getProductInfo?productId=1，让redis和ehcache返回null。--> 缓存被动重建
+             */
+            //            try {
+            //                Thread.sleep(20000);
+            //            } catch (InterruptedException e) {
+            //                e.printStackTrace();
+            //            }
+            //  成功获取到锁后，先从redis获取数据，比较update_time,再判断是否更新redis数据
+            ProductInfo productInfoFromRedisCache = cacheService.getProductInfoFromRedisCache(productId);
+            if (productInfoFromRedisCache == null
+                    || productInfoFromRedisCache.getUpdateTime() == null
+                    || productInfoInMysql.getUpdateTime().after(productInfoFromRedisCache.getUpdateTime())) {
+                log.info("update product info in redis.{}", productInfoInMysql.toString());
+                cacheService.saveProductInfo2ReidsCache(productInfoInMysql);
+                log.info("获取刚保存到redis的商品信息: {}", cacheService.getProductInfoFromRedisCache(productId).toString());
+            } else {
+                log.info("product info in redis is after this record, in redis: {}", cacheService.getProductInfoFromRedisCache(productId).toString());
+            }
+            zookeeperDistributedLock.unlock(LockPrefix.PRODUCT_LOCK_PREFIX + productId);
         } else {
             log.warn("can not get product_info by id = {}", productId);
         }
@@ -138,9 +167,27 @@ public class KafkaMessageProcess implements Runnable {
         criteria.andIdEqualTo(shopId);
         List<ShopInfo> shopInfos = shopInfoMapper.selectByExample(example);
         if (shopInfos != null && shopInfos.size() == 1) {
-            cacheService.saveShopInfo2LocalCache(shopInfos.get(0));
+            ShopInfo shopInfoInMysql = shopInfos.get(0);
+            cacheService.saveShopInfo2LocalCache(shopInfoInMysql);
             log.info("获取刚保存到本地缓存的店铺信息：" + cacheService.getShopInfoFromLocalCache(shopId));
-            cacheService.saveShopInfo2ReidsCache(shopInfos.get(0));
+            // todo:在将数据写入redis之前，应该获取zk分布式锁
+            zookeeperDistributedLock.lock(LockPrefix.SHOP_LOCK_PREFIX + shopId);
+            try {
+                //  成功获取到锁后，先从redis获取数据，比较update_time,再判断是否更新redis数据
+                ShopInfo shopInfoFromRedisCache = cacheService.getShopInfoFromRedisCache(shopId);
+                if (shopInfoFromRedisCache == null
+                        || shopInfoFromRedisCache.getUpdateTime() == null
+                        || shopInfoInMysql.getUpdateTime().after(shopInfoFromRedisCache.getUpdateTime())) {
+                    log.info("update shop info in redis.{}", shopInfoInMysql.toString());
+                    cacheService.saveShopInfo2ReidsCache(shopInfoInMysql);
+                    log.info("获取刚保存到redis的商品信息: {}", cacheService.getShopInfoFromRedisCache(shopId).toString());
+                } else {
+                    log.info("shop info in redis is after this record, in redis: {}", cacheService.getShopInfoFromRedisCache(shopId).toString());
+                }
+                zookeeperDistributedLock.unlock(LockPrefix.SHOP_LOCK_PREFIX + shopId);
+            } catch (Exception e) {
+                zookeeperDistributedLock.unlock(LockPrefix.SHOP_LOCK_PREFIX + shopId);
+            }
         } else {
             log.warn("can not get shop_info by id = {}", shopId);
         }

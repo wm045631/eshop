@@ -4,6 +4,7 @@ import com.roncoo.eshop.cache.config.KafkaConfig;
 import com.roncoo.eshop.cache.mapper.ProductInfoMapper;
 import com.roncoo.eshop.cache.mapper.ShopInfoMapper;
 import com.roncoo.eshop.cache.service.CacheService;
+import com.roncoo.eshop.cache.zk.ZookeeperDistributedLock;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ public class ProductInfoKafkaConsumer implements InitializingBean {
     @Value("${kafka.consumer.cache.topic:cache-message}")
     private String topic;
 
-    @Value("${kafka.consumer.cache.groupid:cache-group-1}")
+    @Value("${kafka.consumer.cache.groupid:eshop-cache-group}")
     private String groupId;
 
     @Value("${kafka.consumer.cache.nthread:3}")
@@ -38,6 +39,9 @@ public class ProductInfoKafkaConsumer implements InitializingBean {
     @Autowired
     private ProductInfoMapper productInfoMapper;
 
+    @Autowired
+    private ZookeeperDistributedLock zookeeperDistributedLock;
+
     @Override
     public void afterPropertiesSet() throws Exception {
         ExecutorService executor = Executors.newFixedThreadPool(nthread);
@@ -48,7 +52,8 @@ public class ProductInfoKafkaConsumer implements InitializingBean {
                     topic,
                     cacheService,
                     shopInfoMapper,
-                    productInfoMapper));
+                    productInfoMapper,
+                    zookeeperDistributedLock));
         }
     }
 }

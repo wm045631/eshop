@@ -1,18 +1,15 @@
 package com.roncoo.eshop.cache.controller;
 
-import com.roncoo.eshop.cache.mapper.ProductInfoMapper;
-import com.roncoo.eshop.cache.mapper.ShopInfoMapper;
 import com.roncoo.eshop.cache.model.ProductInfo;
-import com.roncoo.eshop.cache.model.ProductInfoExample;
 import com.roncoo.eshop.cache.model.ShopInfo;
-import com.roncoo.eshop.cache.model.ShopInfoExample;
 import com.roncoo.eshop.cache.pojo.ApiResponse;
 import com.roncoo.eshop.cache.service.CacheService;
+import com.roncoo.eshop.cache.service.ProductInfoService;
+import com.roncoo.eshop.cache.service.RebuildCacheService;
+import com.roncoo.eshop.cache.service.ShopInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -23,10 +20,12 @@ public class CacheController {
     private CacheService cacheService;
 
     @Autowired
-    private ProductInfoMapper productInfoMapper;
+    private ProductInfoService productInfoService;
 
     @Autowired
-    private ShopInfoMapper shopInfoMapper;
+    private ShopInfoService shopInfoService;
+    @Autowired
+    private RebuildCacheService rebuildCacheService;
 
     /**
      * 获取商品信息
@@ -46,30 +45,25 @@ public class CacheController {
         // 从redis中获取
         productInfo = cacheService.getProductInfoFromRedisCache(productId);
 
-        if (productInfo == null) {
+        if (productInfo != null) {
+            log.info("get product info from redis success. productId = {}", productId);
+            return productInfo;
+        } else {
             log.info("get product info from redis failed. productId = {}", productId);
             // 从ehcache中获取
             productInfo = cacheService.getProductInfoFromLocalCache(productId);
-        } else {
-            log.info("get product info from redis success. productId = {}", productId);
-            return productInfo;
+            if (productInfo != null) {
+                log.info("get product info from ehcache success. productId = {}", productId);
+                return productInfo;
+            }
         }
         // todo: redis和ehcache都没有。需要重新从mysql获取数据，重建缓存  --- 存在并发冲突的问题
-        if (productInfo == null) {
-            log.info("get product info from ehcache failed. productId = {}", productId);
-            ProductInfoExample example = new ProductInfoExample();
-            ProductInfoExample.Criteria criteria = example.createCriteria();
-            criteria.andIdEqualTo(productId);
-            List<ProductInfo> productInfos = productInfoMapper.selectByExample(example);
-            if (productInfos != null && productInfos.size() == 1) {
-                productInfo = productInfos.get(0);
-                cacheService.saveProductInfo2LocalCache(productInfo);
-                cacheService.saveProductInfo2ReidsCache(productInfo);
-            }
-        } else {
-            log.info("get product info from ehcache success. productId = {}", productId);
-        }
-        log.info("get product info. productId = {}, productInfo = {}", productId, productInfo);
+        // 从mysql查询到数据后，存入本地缓存一份，直接返回nginx。同时将数据放入内存队列，单独起个线程去处理缓存的被动重建
+        productInfo = productInfoService.getProductInfoById(productId);
+        cacheService.saveProductInfo2LocalCache(productInfo);
+        log.info("send productInfo to rebuildCacheQueue, waiting for rebuild cache", productInfo);
+        rebuildCacheService.addMsg(productInfo);
+        log.info("get productInfo from mysql. productId = {}, productInfo = {}", productId, productInfo);
         return productInfo;
     }
 
@@ -80,35 +74,32 @@ public class CacheController {
         // 从redis中获取
         shopInfo = cacheService.getShopInfoFromRedisCache(shopId);
 
-        if (shopInfo == null) {
+        if (shopInfo != null) {
+            log.info("get shop info from redis success. shopId = {}", shopId);
+            return shopInfo;
+        } else {
             log.info("get shop info info from redis failed. shopId = {}", shopId);
             // 从ehcache中获取
             shopInfo = cacheService.getShopInfoFromLocalCache(shopId);
-        } else {
-            log.info("get shop info from redis success. shopId = {}", shopId);
-            return shopInfo;
+            if (shopInfo != null) {
+                log.info("get shop info from ehcache success. productId = {}", shopId);
+                return shopInfo;
+            }
         }
         // todo: redis和ehcache都没有。需要重新从mysql获取数据，重建缓存
-        if (shopInfo == null) {
-            log.info("get shop info info from ehcache failed. shopId = {}", shopId);
-            ShopInfoExample example = new ShopInfoExample();
-            ShopInfoExample.Criteria criteria = example.createCriteria();
-            criteria.andIdEqualTo(shopId);
-            List<ShopInfo> shopInfos = shopInfoMapper.selectByExample(example);
-            if (shopInfos != null && shopInfos.size() == 1) {
-                shopInfo = shopInfos.get(0);
-                cacheService.saveShopInfo2LocalCache(shopInfo);
-                cacheService.saveShopInfo2ReidsCache(shopInfo);
-            }
-        } else {
-            log.info("get shop info from ehcache success. productId = {}", shopId);
-        }
+
+        log.info("get shop info info from ehcache failed. shopId = {}", shopId);
+        shopInfo = shopInfoService.getShopInfoById(shopId);
+        cacheService.saveShopInfo2LocalCache(shopInfo);
+        log.info("send shopInfo to rebuildCacheQueue, waiting for rebuild cache", shopInfo);
+        rebuildCacheService.addMsg(shopInfo);
+
         log.info("get product info. shopId = {}, shopInfo = {}", shopId, shopInfo);
         return shopInfo;
     }
 
     //  =============================================================
-    //  ======================== 以下都是用例 =======================
+    //  ======================== 以下都是测试用例 =======================
     //  =============================================================
     @PostMapping("/testPutCache")
     public ApiResponse testPutCache(@RequestBody ProductInfo productInfo) {
@@ -173,4 +164,5 @@ public class CacheController {
         }
         return response;
     }
+
 }

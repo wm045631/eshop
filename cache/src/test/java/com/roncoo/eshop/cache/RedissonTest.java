@@ -13,6 +13,8 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Date;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = {RedissonConfig.class})
@@ -25,6 +27,7 @@ public class RedissonTest {
 
     @Autowired
     StringRedisTemplate stringRedisTemplate;
+
     @Test
     public void test() {
         ValueOperations valueOperations = redisTemplate.opsForValue();
@@ -36,4 +39,13 @@ public class RedissonTest {
         System.out.println(valueOperations.get("redisson-test-string"));
     }
 
+    @Test
+    public void testDate() throws InterruptedException {
+        Date start = new Date();
+        Thread.sleep(2000);
+        Date end = new Date();
+        Date endnull = null;
+        System.out.println(start.before(end));
+        System.out.println(start.before(endnull));
+    }
 }

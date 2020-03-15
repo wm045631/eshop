@@ -1,4 +1,4 @@
-package com.roncoo.eshop.cache.config;
+package com.roncoo.eshop.cache.constant;
 
 public class RedisKeys {
     public static final String PRODUCT_INFO_KEY = "product:info:";

@@ -30,25 +30,4 @@ public class ZookeeperTest {
     @Autowired
     private ZookeeperDistributedLock zookeeperDistributedLock;
 
-    @Test
-    public void test() throws InterruptedException {
-        System.out.println("zookeeper" + zookeeper);
-        CountDownLatch countDownLatch = new CountDownLatch(10);
-        Long productId = 1L;
-        for (int i = 0; i < 10; i++) {
-            new Thread(() -> {
-                try {
-                    zookeeperDistributedLock.acquireDistributedLock(productId);
-                    Thread.sleep(1);
-                    zookeeperDistributedLock.releaseDistributedLock(productId);
-                } catch (Exception e) {
-                    System.out.println("NodeExists ");
-                    e.printStackTrace();
-                }
-            }).start();
-            countDownLatch.countDown();
-        }
-        Thread.sleep(20000);
-        System.out.println("-- over --");
-    }
 }

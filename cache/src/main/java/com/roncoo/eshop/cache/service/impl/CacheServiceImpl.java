@@ -1,7 +1,7 @@
 package com.roncoo.eshop.cache.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.roncoo.eshop.cache.config.RedisKeys;
+import com.roncoo.eshop.cache.constant.RedisKeys;
 import com.roncoo.eshop.cache.model.ProductInfo;
 import com.roncoo.eshop.cache.model.ShopInfo;
 import com.roncoo.eshop.cache.service.CacheService;
@@ -57,10 +57,15 @@ public class CacheServiceImpl implements CacheService {
     @Override
     public ProductInfo getProductInfoFromRedisCache(Long productId) {
         String key = RedisKeys.PRODUCT_INFO_KEY + productId;
-//        String s = jedisCluster.get(key);
-        ValueOperations<String, String> operations = stringRedisTemplate.opsForValue();
-        String s = operations.get(key);
-        return JSONObject.parseObject(s, ProductInfo.class);
+        try {
+            ValueOperations<String, String> operations = stringRedisTemplate.opsForValue();
+            String s = operations.get(key);
+            if (s == null || "".equals(s.trim())) return null;
+            return JSONObject.parseObject(s, ProductInfo.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
