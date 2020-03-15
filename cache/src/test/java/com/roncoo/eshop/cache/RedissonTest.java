@@ -38,14 +38,4 @@ public class RedissonTest {
         valueOperations.set("redisson-test-string", "hello word wangming");
         System.out.println(valueOperations.get("redisson-test-string"));
     }
-
-    @Test
-    public void testDate() throws InterruptedException {
-        Date start = new Date();
-        Thread.sleep(2000);
-        Date end = new Date();
-        Date endnull = null;
-        System.out.println(start.before(end));
-        System.out.println(start.before(endnull));
-    }
 }

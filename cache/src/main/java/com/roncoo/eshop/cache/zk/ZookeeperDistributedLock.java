@@ -35,7 +35,7 @@ public class ZookeeperDistributedLock {
             int count = 0;
             while (true) {
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(20);
                     zookeeper.create(path,
                             "".getBytes(),
                             ZooDefs.Ids.OPEN_ACL_UNSAFE,
