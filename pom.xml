@@ -11,6 +11,7 @@
     <modules>
         <module>inventory</module>
         <module>cache</module>
+        <module>test-project</module>
     </modules>
 
     <name>billion_level_commerce_system</name>
