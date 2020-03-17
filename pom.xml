@@ -4,14 +4,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.roncoo.eshop</groupId>
-    <artifactId>eshop-inventory</artifactId>
+    <artifactId>eshop</artifactId>
     <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
 
     <modules>
-        <module>inventory</module>
-        <module>cache</module>
-        <module>test-project</module>
+        <module>eshop-inventory</module>
+        <module>eshop-cache</module>
+        <module>eshop-test</module>
     </modules>
 
     <name>billion_level_commerce_system</name>
