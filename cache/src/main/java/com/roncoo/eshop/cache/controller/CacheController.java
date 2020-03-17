@@ -39,7 +39,7 @@ public class CacheController {
      */
     @GetMapping("/getProductInfo")
     public ProductInfo getProductInfo(Long productId) {
-        log.info("get product info by productId = {}", productId);
+        log.info("[START] get product info by productId = {}", productId);
         ProductInfo productInfo = null;
 
         // 从redis中获取
@@ -69,7 +69,7 @@ public class CacheController {
 
     @GetMapping("/getShopInfo")
     public ShopInfo getShopInfo(Long shopId) {
-        log.info("get shop info by shopId = {}", shopId);
+        log.info("[START] get shop info by shopId = {}", shopId);
         ShopInfo shopInfo = null;
         // 从redis中获取
         shopInfo = cacheService.getShopInfoFromRedisCache(shopId);
@@ -87,11 +87,12 @@ public class CacheController {
             }
         }
         // todo: redis和ehcache都没有。需要重新从mysql获取数据，重建缓存
-
         log.info("get shop info info from ehcache failed. shopId = {}", shopId);
         shopInfo = shopInfoService.getShopInfoById(shopId);
         cacheService.saveShopInfo2LocalCache(shopInfo);
         log.info("send shopInfo to rebuildCacheQueue, waiting for rebuild cache", shopInfo);
+
+        // 缓存被动重建
         rebuildCacheService.addMsg(shopInfo);
 
         log.info("get product info. shopId = {}, shopInfo = {}", shopId, shopInfo);
