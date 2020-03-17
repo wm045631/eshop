@@ -1,0 +1,6 @@
+# 需要自己读取
+kafka_server: 172.20.3.173:9092,172.20.3.174:9092,172.20.3.175:9092
+kafka_access_log_topic: eshop-access-log
+kafka_consumer_groupid: eshop-access-log-group-1
+
+zookeeper_server: 172.20.3.173:2181,172.20.3.174:2181,172.20.3.175:2181

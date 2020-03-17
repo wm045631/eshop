@@ -12,6 +12,7 @@
         <module>eshop-inventory</module>
         <module>eshop-cache</module>
         <module>eshop-test</module>
+        <module>eshop-storm</module>
     </modules>
 
     <name>billion_level_commerce_system</name>
@@ -38,6 +39,8 @@
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <java.version>1.8</java.version>
         <zk.version>3.4.5</zk.version>
+        <commons.version>3.2.1</commons.version>
+        <snakeyaml.version>1.26</snakeyaml.version>
     </properties>
 
     <dependencyManagement>
@@ -123,6 +126,17 @@
                 <artifactId>zookeeper</artifactId>
                 <version>${zk.version}</version>
             </dependency>
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${commons.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -130,14 +144,14 @@
         <pluginManagement>
             <plugins>
                 <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-compiler-plugin</artifactId>-->
-                    <!--<version>${maven-compiler-plugin.version}</version>-->
-                    <!--<configuration>-->
-                        <!--<source>${java.version}</source>-->
-                        <!--<target>${java.version}</target>-->
-                        <!--<release>${java.version}</release>-->
-                    <!--</configuration>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-compiler-plugin</artifactId>-->
+                <!--<version>${maven-compiler-plugin.version}</version>-->
+                <!--<configuration>-->
+                <!--<source>${java.version}</source>-->
+                <!--<target>${java.version}</target>-->
+                <!--<release>${java.version}</release>-->
+                <!--</configuration>-->
                 <!--</plugin>-->
                 <plugin>
                     <groupId>org.mybatis.generator</groupId>

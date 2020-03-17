@@ -1,0 +1,9 @@
+appid: zrunframrwork
+spring:
+    application:
+        name: zrunframrwork
+    datasource:
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://localhost/test
+server:
+    port: 9000
