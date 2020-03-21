@@ -10,7 +10,7 @@ import com.roncoo.eshop.cache.model.ProductInfoExample;
 import com.roncoo.eshop.cache.model.ShopInfo;
 import com.roncoo.eshop.cache.model.ShopInfoExample;
 import com.roncoo.eshop.cache.service.CacheService;
-import com.roncoo.eshop.cache.zk.ZookeeperDistributedLock;
+import com.roncoo.eshop.cache.zk.ZookeeperSession;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -32,7 +32,7 @@ public class KafkaMessageProcess implements Runnable {
     private CacheService cacheService;
     private ShopInfoMapper shopInfoMapper;
     private ProductInfoMapper productInfoMapper;
-    private ZookeeperDistributedLock zookeeperDistributedLock;
+    private ZookeeperSession zookeeperSession;
 
     public KafkaMessageProcess(KafkaConfig kafkaConfig,
                                String groupId,
@@ -40,14 +40,14 @@ public class KafkaMessageProcess implements Runnable {
                                CacheService cacheService,
                                ShopInfoMapper shopInfoMapper,
                                ProductInfoMapper productInfoMapper,
-                               ZookeeperDistributedLock zookeeperDistributedLock) {
+                               ZookeeperSession zookeeperSession) {
         this.kafkaConfig = kafkaConfig;
         this.groupId = groupId;
         this.topic = topic;
         this.cacheService = cacheService;
         this.productInfoMapper = productInfoMapper;
         this.shopInfoMapper = shopInfoMapper;
-        this.zookeeperDistributedLock = zookeeperDistributedLock;
+        this.zookeeperSession = zookeeperSession;
     }
 
     /**
@@ -115,7 +115,7 @@ public class KafkaMessageProcess implements Runnable {
             ProductInfo info = cacheService.getProductInfoFromLocalCache(productId);
             log.info("获取刚保存到本地缓存的商品信息: {}", info.toString());
             // todo:在将数据写入redis之前，应该获取zk分布式锁
-            zookeeperDistributedLock.lock(LockPrefix.PRODUCT_LOCK_PREFIX + productId);
+            zookeeperSession.lock(LockPrefix.PRODUCT_LOCK_PREFIX + productId);
             /**
              * 测试缓存更新和缓存重建都尝试获得相同的分布式锁。
              * 一边往kafka发送{"serviceId":"productInfoService","productId":1}  --> 缓存主动更新
@@ -137,7 +137,7 @@ public class KafkaMessageProcess implements Runnable {
             } else {
                 log.info("product info in redis is after this record, in redis: {}", cacheService.getProductInfoFromRedisCache(productId).toString());
             }
-            zookeeperDistributedLock.unlock(LockPrefix.PRODUCT_LOCK_PREFIX + productId);
+            zookeeperSession.unlock(LockPrefix.PRODUCT_LOCK_PREFIX + productId);
         } else {
             log.warn("can not get product_info by id = {}", productId);
         }
@@ -171,7 +171,7 @@ public class KafkaMessageProcess implements Runnable {
             cacheService.saveShopInfo2LocalCache(shopInfoInMysql);
             log.info("获取刚保存到本地缓存的店铺信息：" + cacheService.getShopInfoFromLocalCache(shopId));
             // todo:在将数据写入redis之前，应该获取zk分布式锁
-            zookeeperDistributedLock.lock(LockPrefix.SHOP_LOCK_PREFIX + shopId);
+            zookeeperSession.lock(LockPrefix.SHOP_LOCK_PREFIX + shopId);
             try {
                 //  成功获取到锁后，先从redis获取数据，比较update_time,再判断是否更新redis数据
                 ShopInfo shopInfoFromRedisCache = cacheService.getShopInfoFromRedisCache(shopId);
@@ -184,9 +184,9 @@ public class KafkaMessageProcess implements Runnable {
                 } else {
                     log.info("shop info in redis is after this record, in redis: {}", cacheService.getShopInfoFromRedisCache(shopId).toString());
                 }
-                zookeeperDistributedLock.unlock(LockPrefix.SHOP_LOCK_PREFIX + shopId);
+                zookeeperSession.unlock(LockPrefix.SHOP_LOCK_PREFIX + shopId);
             } catch (Exception e) {
-                zookeeperDistributedLock.unlock(LockPrefix.SHOP_LOCK_PREFIX + shopId);
+                zookeeperSession.unlock(LockPrefix.SHOP_LOCK_PREFIX + shopId);
             }
         } else {
             log.warn("can not get shop_info by id = {}", shopId);

@@ -1,5 +1,6 @@
 package com.roncoo.eshop.cache;
 
+import com.roncoo.eshop.cache.listener.InitListener;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -8,14 +9,18 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@EnableScheduling
 @EnableAutoConfiguration
 @SpringBootApplication
 @ComponentScan
@@ -48,6 +53,13 @@ public class CacheApplication {
         return new DataSourceTransactionManager(dataSource());
     }
 
+    @Bean
+    public ServletListenerRegistrationBean servletListenerRegistrationBean() {
+        ServletListenerRegistrationBean servletListenerRegistrationBean =
+                new ServletListenerRegistrationBean();
+        servletListenerRegistrationBean.setListener(new InitListener());
+        return servletListenerRegistrationBean;
+    }
 //    /**
 //     * 采用传统的JedisCluster
 //     *
@@ -62,6 +74,7 @@ public class CacheApplication {
 //        JedisCluster jedisCluster = new JedisCluster(jedisClusterNodes);
 //        return jedisCluster;
 //    }
+
 
     public static void main(String[] args) {
         SpringApplication.run(CacheApplication.class, args);

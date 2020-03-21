@@ -3,16 +3,20 @@ package com.roncoo.eshop.cache.controller;
 import com.roncoo.eshop.cache.model.ProductInfo;
 import com.roncoo.eshop.cache.model.ShopInfo;
 import com.roncoo.eshop.cache.pojo.ApiResponse;
+import com.roncoo.eshop.cache.prewarm.CachePrewarmThread;
 import com.roncoo.eshop.cache.service.CacheService;
 import com.roncoo.eshop.cache.service.ProductInfoService;
 import com.roncoo.eshop.cache.service.RebuildCacheService;
 import com.roncoo.eshop.cache.service.ShopInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
+@EnableScheduling
 @RequestMapping("/ehcache")
 public class CacheController {
 
@@ -99,8 +103,17 @@ public class CacheController {
         return shopInfo;
     }
 
+    /**
+     * 缓存预热的触发接口
+     */
+    @GetMapping("/warmUpCache")
+    @Scheduled(cron = "0 1 * * * ? ")
+    public void warmUpCache() {
+        new Thread(new CachePrewarmThread()).start();
+    }
+
     //  =============================================================
-    //  ======================== 以下都是测试用例 =======================
+    //  ======================== 以下都是测试用例 ====================
     //  =============================================================
     @PostMapping("/testPutCache")
     public ApiResponse testPutCache(@RequestBody ProductInfo productInfo) {

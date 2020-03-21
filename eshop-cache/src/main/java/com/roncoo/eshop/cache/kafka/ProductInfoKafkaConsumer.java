@@ -4,7 +4,7 @@ import com.roncoo.eshop.cache.config.KafkaConfig;
 import com.roncoo.eshop.cache.mapper.ProductInfoMapper;
 import com.roncoo.eshop.cache.mapper.ShopInfoMapper;
 import com.roncoo.eshop.cache.service.CacheService;
-import com.roncoo.eshop.cache.zk.ZookeeperDistributedLock;
+import com.roncoo.eshop.cache.zk.ZookeeperSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class ProductInfoKafkaConsumer implements InitializingBean {
     private ProductInfoMapper productInfoMapper;
 
     @Autowired
-    private ZookeeperDistributedLock zookeeperDistributedLock;
+    private ZookeeperSession zookeeperSession;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -53,7 +53,7 @@ public class ProductInfoKafkaConsumer implements InitializingBean {
                     cacheService,
                     shopInfoMapper,
                     productInfoMapper,
-                    zookeeperDistributedLock));
+                    zookeeperSession));
         }
     }
 }
