@@ -107,8 +107,9 @@ public class CacheController {
      * 缓存预热的触发接口
      */
     @GetMapping("/warmUpCache")
-    @Scheduled(cron = "0 1 * * * ? ")
+    @Scheduled(cron = "0 */1 * * * ?")
     public void warmUpCache() {
+        log.info("Timed task of '/warmUpCache'");
         new Thread(new CachePrewarmThread()).start();
     }
 
