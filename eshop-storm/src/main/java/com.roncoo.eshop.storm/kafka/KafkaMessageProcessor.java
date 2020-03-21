@@ -78,7 +78,7 @@ public class KafkaMessageProcessor implements Runnable {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
                 for (ConsumerRecord<String, String> record : records) {
                     String message = record.value();
-                    log.info("topic:{},route_key:{},partition:{},offset:{},message:{}",
+                    log.info("topic:[{}],route_key:{},partition:{},offset:{},message:{}",
                             record.topic(), record.key(), record.partition(), record.offset(), message);
                     queue.put(message);
                 }

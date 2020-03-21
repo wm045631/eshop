@@ -18,17 +18,17 @@ public class HotProductTopology {
 
         builder.setSpout("AccessLogKafkaSpout", new AccessLogKafkaSpout(), 1);
 
-        builder.setBolt("LogParseBolt", new LogParseBolt(), 5)
-                .setNumTasks(5)
+        builder.setBolt("LogParseBolt", new LogParseBolt(), 2)
+                .setNumTasks(2)
                 .shuffleGrouping("AccessLogKafkaSpout");
 
-        builder.setBolt("HotProductCountBolt", new HotProductCountBolt(), 5)
-                .setNumTasks(10)
+        builder.setBolt("HotProductCountBolt", new HotProductCountBolt(), 2)
+                .setNumTasks(2)
                 .fieldsGrouping("LogParseBolt", new Fields("productId"));
 
         Config config = new Config();
 
-        if (args != null && args.length > 1) {
+        if (args != null && args.length > 0) {
             config.setNumWorkers(3);
             try {
                 StormSubmitter.submitTopology(args[0], config, builder.createTopology());
@@ -38,9 +38,8 @@ public class HotProductTopology {
         } else {
             LocalCluster cluster = new LocalCluster();
             cluster.submitTopology("HotProductTopology", config, builder.createTopology());
-            Utils.sleep(30000);
-            cluster.shutdown();
+//            Utils.sleep(30000);
+//            cluster.shutdown();
         }
     }
-
 }
