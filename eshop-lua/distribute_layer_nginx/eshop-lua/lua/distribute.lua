@@ -13,29 +13,46 @@ function urlLoadBalance(productId)
     return "http://"..host[index]
 end
 
+-- 随机获取一台应用层nginx
+function urlRandomGet()
+    math.randomseed(tostring(os.time()):reverse():sub(1, 7))
+    local index = math.random(1, 2)
+    return "http://"..host[index]
+then
+
 if "GET" == request_method then
     args = ngx.req.get_uri_args()
     local uri_args = ngx.req.get_uri_args()
 
     local productId = uri_args["productId"]
-    local backend = urlLoadBalance(productId)
+
+    local hot_product_key = "hot_product_"..productId
+    local hot_product_flag = cache_ngx:get(hot_product_key)
+
+    local backend = ""
+    -- 热点数据，自动降级随机到应用层nginx
+    if hot_product_flag == "true" then
+        backend = urlRandomGet()
+    else
+        backend = urlLoadBalance(productId)
+    end
+
     local uri = ngx.var.uri
-
     local shopId = uri_args["shopId"]
-        uri = uri.."?productId="..productId.."&shopId="..shopId
-        -- ngx.say("backend = ,", backend, ", uri = ", uri)
-        local resp, err = httpc:request_uri(backend, {
-            method = "GET",
-            path = uri,
-            keepalive = false
-        })
+    uri = uri.."?productId="..productId.."&shopId="..shopId
+    -- ngx.say("backend = ,", backend, ", uri = ", uri)
+    local resp, err = httpc:request_uri(backend, {
+        method = "GET",
+        path = uri,
+        keepalive = false
+    })
 
-        if not resp then
-            ngx.say("request error :", err)
-            return
-        end
-        ngx.say(resp.body)
-        httpc:close()
+    if not resp then
+        ngx.say("request error :", err)
+        return
+    end
+    ngx.say(resp.body)
+    httpc:close()
 
     -- todo: lua的POST请求暂时没调通
     elseif "POST" == request_method then

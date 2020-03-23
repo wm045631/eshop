@@ -41,6 +41,7 @@
         <zk.version>3.4.5</zk.version>
         <commons.version>3.2.1</commons.version>
         <snakeyaml.version>1.26</snakeyaml.version>
+        <retrofit2.version>2.5.0</retrofit2.version>
     </properties>
 
     <dependencyManagement>
@@ -136,6 +137,25 @@
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${snakeyaml.version}</version>
+            </dependency>
+
+            <!-- retrofit -->
+            <dependency>
+                <groupId>com.squareup.retrofit2</groupId>
+                <artifactId>retrofit</artifactId>
+                <version>${retrofit2.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.squareup.retrofit2</groupId>
+                <artifactId>converter-gson</artifactId>
+                <version>${retrofit2.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.squareup.retrofit2</groupId>
+                <artifactId>converter-jackson</artifactId>
+                <version>${retrofit2.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
