@@ -27,7 +27,7 @@ public class ZookeeperConfig {
 
     public ZookeeperConfig() {
         Yaml yaml = new Yaml();
-        InputStream in = AccessLogKafkaSpout.class.getClassLoader().getResourceAsStream("kafka_config.yaml");
+        InputStream in = AccessLogKafkaSpout.class.getClassLoader().getResourceAsStream("config.yaml");
         Map<String, String> config = yaml.loadAs(in, Map.class);
         this.server = config.get("zookeeper_server");
 

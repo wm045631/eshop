@@ -1,0 +1,15 @@
+# 需要自己读取
+kafka_server: 172.20.3.173:9092,172.20.3.174:9092,172.20.3.175:9092
+kafka_access_log_topic: eshop-access-log
+kafka_consumer_groupid: eshop-access-log-group-1
+
+zookeeper_server: 172.20.3.173:2181,172.20.3.174:2181,172.20.3.175:2181
+zookeeper_sessiontimeout: 50000
+zookeeper_retry: 3
+
+nginx_application_layer: cdh1:70,cdh2:70
+nginx_distributed_layer: 172.20.3.175:70
+nginx_distributed_layer_hot: http://172.20.3.175:70/hot?productId=
+nginx_distributed_layer_cancel_hot: http://172.20.3.175:70/cancelHot?productId=
+
+get_productinfo_by_id: http://cdh1:8081

@@ -13,7 +13,6 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -30,7 +29,7 @@ public class KafkaMessageProcessor implements Runnable {
 
     public KafkaMessageProcessor(ArrayBlockingQueue<String> queue) {
         Yaml yaml = new Yaml();
-        InputStream in = AccessLogKafkaSpout.class.getClassLoader().getResourceAsStream("kafka_config.yaml");
+        InputStream in = AccessLogKafkaSpout.class.getClassLoader().getResourceAsStream("config.yaml");
         Map<String, String> kafkaConfig = yaml.loadAs(in, Map.class);
         this.groupId = kafkaConfig.get("kafka_consumer_groupid");
         this.kafkaServer = kafkaConfig.get("kafka_server");
