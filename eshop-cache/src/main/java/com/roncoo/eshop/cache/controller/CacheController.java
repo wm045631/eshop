@@ -1,5 +1,10 @@
 package com.roncoo.eshop.cache.controller;
 
+import com.alibaba.fastjson.JSONObject;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
+import com.roncoo.eshop.cache.hystrix.HttpClientUtils;
+import com.roncoo.eshop.cache.hystrix.ProductInfoCommand;
 import com.roncoo.eshop.cache.model.ProductInfo;
 import com.roncoo.eshop.cache.model.ShopInfo;
 import com.roncoo.eshop.cache.pojo.ApiResponse;
@@ -111,6 +116,21 @@ public class CacheController {
     public void warmUpCache() {
         log.info("Timed task of '/warmUpCache'");
         new Thread(new CachePrewarmThread()).start();
+    }
+
+
+    @GetMapping("/productInfo")
+    public ApiResponse productInfo(Long productId) {
+        ApiResponse<Object> res = new ApiResponse<>();
+        ProductInfoCommand productInfoCommand = new ProductInfoCommand(productId);
+        ProductInfo productInfo = productInfoCommand.execute();
+
+        for (int i = 1; i < 100; i++) {
+            int id = i % 5;
+            ProductInfoCommand productInfoCommond = new ProductInfoCommand(Long.valueOf(id));
+            productInfoCommond.execute();
+        }
+        return res;
     }
 
     //  =============================================================
