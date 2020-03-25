@@ -265,7 +265,6 @@ public class HotProductCountBolt extends BaseRichBolt {
                     Long avgCount = totalCount / calculateCount;
 
                     // 3、从第一个元素开始遍历，判断是否是平均值得10倍
-                    Map<String, String> postArgs;
                     for (Map.Entry<Long, Long> productCountEntry : productCountList) {
                         if (productCountEntry.getValue() > 10 * avgCount) {
                             log.info("*** 产生热点数据, productId = {} ***", productCountEntry.getKey());
@@ -279,7 +278,7 @@ public class HotProductCountBolt extends BaseRichBolt {
                             ProductInfo productInfo = response.body();
                             log.info("get productInfo from cacheClient: productInfo = {}", productInfo);
                             for (AppNginxService appNginxService : nginxClient.getAppNginxServiceList()) {
-                               appNginxService.setHotProductInfo(productInfo).execute();
+                                appNginxService.setHotProductInfo(productInfo).execute();
                                 log.info("热点数据的发送到分发层nginx success");
                             }
                         } else {
@@ -287,9 +286,7 @@ public class HotProductCountBolt extends BaseRichBolt {
                         }
                     }
                     // 5、取消已经不再是热点数据的商品
-                    if (lastTimehotProductIdList.size() == 0) {
-                        lastTimehotProductIdList = hotProductIdList;
-                    } else {
+                    if (lastTimehotProductIdList.size() >= 0) {
                         for (Long id : lastTimehotProductIdList) {
                             if (!hotProductIdList.contains(id)) {
                                 log.info("*** 通知分发层nginx删除过期的热点数据, productId = {} ***", id);
@@ -297,6 +294,7 @@ public class HotProductCountBolt extends BaseRichBolt {
                             }
                         }
                     }
+                    lastTimehotProductIdList = hotProductIdList;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
