@@ -1,9 +1,5 @@
 package com.roncoo.eshop.cache.controller;
 
-import com.alibaba.fastjson.JSONObject;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
-import com.roncoo.eshop.cache.hystrix.HttpClientUtils;
 import com.roncoo.eshop.cache.hystrix.ProductInfoCommand;
 import com.roncoo.eshop.cache.model.ProductInfo;
 import com.roncoo.eshop.cache.model.ShopInfo;
@@ -19,6 +15,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @RestController
 @EnableScheduling
@@ -33,6 +32,7 @@ public class CacheController {
 
     @Autowired
     private ShopInfoService shopInfoService;
+
     @Autowired
     private RebuildCacheService rebuildCacheService;
 
@@ -75,6 +75,18 @@ public class CacheController {
         log.info("get productInfo from mysql. productId = {}, productInfo = {}", productId, productInfo);
         return productInfo;
     }
+
+    @GetMapping("/getProductInfosByHystrix")
+    public List<ProductInfo> getProductInfosByHystrix(String productIds) {
+        List<ProductInfo> productInfos = new ArrayList<>();
+        log.info("getProductInfo by hystrix productIds = {}", productIds);
+        for (String id : productIds.split(",")) {
+            ProductInfo productInfo = productInfoService.getProductByHystrix(id);
+            productInfos.add(productInfo);
+        }
+        return productInfos;
+    }
+
 
     @GetMapping("/getShopInfo")
     public ShopInfo getShopInfo(Long shopId) {

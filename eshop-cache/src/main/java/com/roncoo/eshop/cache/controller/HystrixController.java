@@ -45,6 +45,7 @@ public class HystrixController {
     /**
      * 当访问1次http://localhost:8081/hystrix2/test1?id=1和2次http://localhost:8081/hystrix2/test1?id=2，错误率达66%超过了设置的50%。服务进入熔断。
      * 再请求一次http://localhost:8081/hystrix2/test1?id=1时，返回的不再是"test_1",而是"default fail"
+     *
      * @param id
      * @return
      */
@@ -75,21 +76,28 @@ public class HystrixController {
         return "test_" + id;
     }
 
-    @HystrixCommand(commandProperties = {
-            @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "1500"),
-            // 滑动统计的桶数量
-            /**
-             * 设置一个rolling window被划分的数量，若numBuckets＝10，rolling window＝10000，
-             *那么一个bucket的时间即1秒。必须符合rolling window % numberBuckets == 0。默认1
-             */
-            @HystrixProperty(name = "metrics.rollingStats.numBuckets", value = "10"),
-            // 设置滑动窗口的统计时间。熔断器使用这个时间
-            /** 设置统计的时间窗口值的，毫秒值。
-             circuit break 的打开会根据1个rolling window的统计来计算。
-             若rolling window被设为10000毫秒，则rolling window会被分成n个buckets，
-             每个bucket包含success，failure，timeout，rejection的次数的统计信息。默认10000
-             **/
-            @HystrixProperty(name = "metrics.rollingStats.timeInMilliseconds", value = "10000")},
+    @HystrixCommand(
+            // commandKey：唯一表示该方法，对应请求底层依赖服务的一个接口
+            commandKey = "test2",
+            // groupKey: 代表一个底层依赖服务，对应该依赖服务的多个接口
+            groupKey = "HystrixGroup",
+            // threadPoolKey对应的线程池
+            threadPoolKey = "HystrixThreadPool",
+            commandProperties = {
+                    @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "1500"),
+                    // 滑动统计的桶数量
+                    /**
+                     * 设置一个rolling window被划分的数量，若numBuckets＝10，rolling window＝10000，
+                     *那么一个bucket的时间即1秒。必须符合rolling window % numberBuckets == 0。默认1
+                     */
+                    @HystrixProperty(name = "metrics.rollingStats.numBuckets", value = "10"),
+                    // 设置滑动窗口的统计时间。熔断器使用这个时间
+                    /** 设置统计的时间窗口值的，毫秒值。
+                     circuit break 的打开会根据1个rolling window的统计来计算。
+                     若rolling window被设为10000毫秒，则rolling window会被分成n个buckets，
+                     每个bucket包含success，failure，timeout，rejection的次数的统计信息。默认10000
+                     **/
+                    @HystrixProperty(name = "metrics.rollingStats.timeInMilliseconds", value = "10000")},
             threadPoolProperties = {
                     @HystrixProperty(name = "coreSize", value = "15"),
                     /**
@@ -109,6 +117,8 @@ public class HystrixController {
             })
     @GetMapping("/test2")
     public String test2() throws InterruptedException {
+        // 打印的日志属于 HystrixThreadPool-1线程
+        log.info("request for test2");
         TimeUnit.MILLISECONDS.sleep(1000);
         return "test2";
     }

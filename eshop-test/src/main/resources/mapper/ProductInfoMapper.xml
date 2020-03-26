@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.roncoo.eshop.mapper.ProductInfoMapper">
+  <resultMap id="BaseResultMap" type="com.roncoo.eshop.mapper.model.ProductInfo">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <result column="id" jdbcType="BIGINT" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="price" jdbcType="DOUBLE" property="price" />
+    <result column="pictureList" jdbcType="VARCHAR" property="picturelist" />
+    <result column="specification" jdbcType="VARCHAR" property="specification" />
+    <result column="service" jdbcType="VARCHAR" property="service" />
+    <result column="color" jdbcType="VARCHAR" property="color" />
+    <result column="size" jdbcType="DOUBLE" property="size" />
+    <result column="shop_id" jdbcType="BIGINT" property="shopId" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+</mapper>

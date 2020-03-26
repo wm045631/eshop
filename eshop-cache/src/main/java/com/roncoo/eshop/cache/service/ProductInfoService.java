@@ -6,4 +6,5 @@ public interface ProductInfoService {
 
     ProductInfo getProductInfoById(Long productId);
 
+    ProductInfo getProductByHystrix(String productId);
 }
