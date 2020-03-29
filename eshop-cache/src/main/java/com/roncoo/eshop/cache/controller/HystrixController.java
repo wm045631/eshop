@@ -43,6 +43,8 @@ public class HystrixController {
     }
 
     /**
+     * hystrix降级
+     * <p>
      * 当访问1次http://localhost:8081/hystrix2/test1?id=1和2次http://localhost:8081/hystrix2/test1?id=2，错误率达66%超过了设置的50%。服务进入熔断。
      * 再请求一次http://localhost:8081/hystrix2/test1?id=1时，返回的不再是"test_1",而是"default fail"
      *
@@ -61,7 +63,7 @@ public class HystrixController {
                     @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "3"),
                     //当出错率超过50%后熔断器启动
                     @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "50"),
-                    // 熔断器工作时间，超过这个时间，先放一个请求进去，成功的话就关闭熔断，失败就再等一段时间
+                    // 熔断器工作时间，超过这个时间，熔断器由close -> half-open状态，先放一个请求进去，成功的话就关闭熔断，失败就再等一段时间
                     @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "5000"),
                     // 统计滚动的时间窗口
                     @HystrixProperty(name = "metrics.rollingStats.timeInMilliseconds", value = "10000")

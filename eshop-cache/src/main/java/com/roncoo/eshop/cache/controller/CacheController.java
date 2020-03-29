@@ -82,11 +82,21 @@ public class CacheController {
         log.info("getProductInfo by hystrix productIds = {}", productIds);
         for (String id : productIds.split(",")) {
             ProductInfo productInfo = productInfoService.getProductByHystrix(id);
-            productInfos.add(productInfo);
+            if (productInfo != null) productInfos.add(productInfo);
         }
         return productInfos;
     }
 
+    @GetMapping("/getProductInfosBySentinel")
+    public List<ProductInfo> getProductInfosBySentinel(String productIds) {
+        List<ProductInfo> productInfos = new ArrayList<>();
+        log.info("getProductInfo by hystrix productIds = {}", productIds);
+        for (String id : productIds.split(",")) {
+            ProductInfo productInfo = productInfoService.getProductInfosBySentinel(id);
+            if (productInfo != null) productInfos.add(productInfo);
+        }
+        return productInfos;
+    }
 
     @GetMapping("/getShopInfo")
     public ShopInfo getShopInfo(Long shopId) {

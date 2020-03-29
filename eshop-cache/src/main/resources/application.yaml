@@ -2,6 +2,13 @@ server:
   port: 8081
 
 spring:
+  application:
+    name: sentinel-wangming
+  cloud:
+    sentinel:
+      transport:
+        dashboard: 172.20.3.173:7777
+    #eager: trues
   datasource:
     url: jdbc:mysql://172.20.3.173:3306/commerce_system?useSSL=false&useUnicode=true&serverTimezone=GMT%2B8&characterEncoding=UTF-8&allowMultiQueries=true&nullNamePatternMatchesAll=true&createDatabaseIfNotExist=true
     username: root
@@ -13,7 +20,6 @@ spring:
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
-
 
 kafka:
   server: 172.20.3.173:9092,172.20.3.174:9092,172.20.3.175:9092

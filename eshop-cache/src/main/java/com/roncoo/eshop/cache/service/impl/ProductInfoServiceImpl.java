@@ -1,5 +1,6 @@
 package com.roncoo.eshop.cache.service.impl;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.fastjson.JSONObject;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
@@ -7,12 +8,14 @@ import com.roncoo.eshop.cache.hystrix.HttpClientUtils;
 import com.roncoo.eshop.cache.mapper.ProductInfoMapper;
 import com.roncoo.eshop.cache.model.ProductInfo;
 import com.roncoo.eshop.cache.model.ProductInfoExample;
+import com.roncoo.eshop.cache.service.ExceptionUtil;
 import com.roncoo.eshop.cache.service.ProductInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -48,6 +51,25 @@ public class ProductInfoServiceImpl implements ProductInfoService {
         log.info("getProductInfo by hystrix id = {}", productId);
         String url = "http://cdh1:8081/ehcache/getProductInfo?productId=" + productId;
         String res = HttpClientUtils.sendGetRequest(url);
+        try {
+            TimeUnit.MILLISECONDS.sleep(2000);
+        } catch (InterruptedException e) {
+            log.info("sleep interrupted");
+        }
+        return JSONObject.parseObject(res, ProductInfo.class);
+    }
+
+    @Override
+    @SentinelResource(value = "getProductInfosBySentinel", blockHandler = "handleException", blockHandlerClass = {ExceptionUtil.class})
+    public ProductInfo getProductInfosBySentinel(String productId) {
+        log.info("getProductInfo by Sentinel id = {}", productId);
+        String url = "http://cdh1:8081/ehcache/getProductInfo?productId=" + productId;
+        String res = HttpClientUtils.sendGetRequest(url);
+        try {
+            TimeUnit.MILLISECONDS.sleep(2000);
+        } catch (InterruptedException e) {
+            log.info("sleep interrupted");
+        }
         return JSONObject.parseObject(res, ProductInfo.class);
     }
 
