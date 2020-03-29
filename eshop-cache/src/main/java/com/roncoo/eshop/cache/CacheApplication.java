@@ -1,5 +1,6 @@
 package com.roncoo.eshop.cache;
 
+import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
 import com.roncoo.eshop.cache.listener.InitListener;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -60,21 +62,21 @@ public class CacheApplication {
         servletListenerRegistrationBean.setListener(new InitListener());
         return servletListenerRegistrationBean;
     }
-//    /**
-//     * 采用传统的JedisCluster
-//     *
-//     * @return
-//     */
-//    @Bean
-//    public JedisCluster JedisClusterFactory() {
-//        Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
-//        jedisClusterNodes.add(new HostAndPort("172.20.3.173", 7005));
-//        jedisClusterNodes.add(new HostAndPort("172.20.3.174", 7001));
-//        jedisClusterNodes.add(new HostAndPort("172.20.3.175", 7003));
-//        JedisCluster jedisCluster = new JedisCluster(jedisClusterNodes);
-//        return jedisCluster;
-//    }
 
+    /**
+     * Springboot默认不支持JSP的
+     * 注册HystrixMetricsStreamServlet，使得该Servlet能够使用springboot内置的web容器(默认tomcat)
+     * 一般Servlet都是实现doGet、doPost方法，打成war包。放到tomcat的webapp下，借助外部的tomcat容器启动
+     *
+     * @return
+     */
+    @Bean
+    public ServletRegistrationBean indexServletRegistration() {
+//        ServletRegistrationBean registration = new ServletRegistrationBean(new HystrixMetricsStreamServlet(),"/hystrix.stream");
+        ServletRegistrationBean registration = new ServletRegistrationBean(new HystrixMetricsStreamServlet());
+        registration.addUrlMappings("/hystrix.stream");
+        return registration;
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(CacheApplication.class, args);
